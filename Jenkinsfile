@@ -1,29 +1,35 @@
 pipeline {
     agent any
+	tools {
+	maven 'Maven-3'
+}
 
     stages {
-        stage('Build') {
+        stage('Check Tools') {
             steps {
-                echo 'Building the Application'
-		sh 'cat app.txt'
+                echo 'Checking Tools'
+		sh 'java -version'
+		sh 'mvn -version'
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                echo 'Compile the Application'
+		sh 'mvn compile'
             }
         }
         stage('Test') {
             steps {
                 echo 'Testing the Application'
+		sh 'mvn test'
+
             }
         }
-        stage('Deploy') {
+        stage('Package') {
             steps {
-                echo 'Deploying the Application'
-            }
-        }
-        stage('Where am I?') {
-            steps {
-                sh 'pwd'
-                sh 'whoami'
-                sh 'ls'
-                sh 'ls -la'
+                echo 'Package the Application'
+		sh 'mvn package'
             }
         }
     }
