@@ -1,46 +1,26 @@
-pipeline {
-    agent any
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    tools {
-        maven 'Maven-3'
-    }
+    <modelVersion>4.0.0</modelVersion>
 
-    stages {
-        stage('Check Tools') {
-            steps {
-                sh 'java -version'
-                sh 'mvn -version'
-            }
-        }
+    <groupId>com.learning</groupId>
+    <artifactId>jenkins-learning</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
-        stage('Compile') {
-            steps {
-                sh 'mvn compile'
-            }
-        }
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit 'target/surefire-reports/*.xml'
-                }
-            }
-        }
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-        stage('Package') {
-            steps {
-                sh 'mvn package'
-            }
-        }
-
-        stage('Archive') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.jar',
-                                 fingerprint: true
-            }
-        }
-    }
-}
+</project>
