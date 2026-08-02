@@ -5,6 +5,7 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Building the Application'
+		sh 'cat app.txt'
             }
         }
         stage('Test') {
