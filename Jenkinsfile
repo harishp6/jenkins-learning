@@ -1,35 +1,45 @@
 pipeline {
     agent any
-	tools {
-	maven 'Maven-3'
-}
+
+    tools {
+        maven 'Maven-3'
+    }
 
     stages {
         stage('Check Tools') {
             steps {
-                echo 'Checking Tools'
-		sh 'java -version'
-		sh 'mvn -version'
+                sh 'java -version'
+                sh 'mvn -version'
             }
         }
 
         stage('Compile') {
             steps {
-                echo 'Compile the Application'
-		sh 'mvn compile'
+                sh 'mvn compile'
             }
         }
+
         stage('Test') {
             steps {
-                echo 'Testing the Application'
-		sh 'mvn test'
-
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
             }
         }
+
         stage('Package') {
             steps {
-                echo 'Package the Application'
-		sh 'mvn package'
+                sh 'mvn package'
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar',
+                                 fingerprint: true
             }
         }
     }
