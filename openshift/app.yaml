@@ -1,0 +1,87 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: jenkins-learning
+  annotations:
+    description: Deploys the jenkins-learning Calculator API
+parameters:
+  - name: APP_NAME
+    value: jenkins-learning
+  - name: IMAGE
+    description: Fully qualified container image, including a tag
+    required: true
+  - name: REPLICAS
+    value: "1"
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        app: ${APP_NAME}
+    spec:
+      replicas: ${REPLICAS}
+      selector:
+        matchLabels:
+          app: ${APP_NAME}
+      template:
+        metadata:
+          labels:
+            app: ${APP_NAME}
+        spec:
+          containers:
+            - name: ${APP_NAME}
+              image: ${IMAGE}
+              imagePullPolicy: IfNotPresent
+              ports:
+                - containerPort: 8080
+                  name: http
+              readinessProbe:
+                httpGet:
+                  path: /actuator/health/readiness
+                  port: http
+                initialDelaySeconds: 10
+                periodSeconds: 10
+              livenessProbe:
+                httpGet:
+                  path: /actuator/health/liveness
+                  port: http
+                initialDelaySeconds: 20
+                periodSeconds: 20
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        app: ${APP_NAME}
+    spec:
+      selector:
+        app: ${APP_NAME}
+      ports:
+        - name: http
+          port: 8080
+          targetPort: http
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: ${APP_NAME}
+      labels:
+        app: ${APP_NAME}
+    spec:
+      to:
+        kind: Service
+        name: ${APP_NAME}
+      port:
+        targetPort: http
